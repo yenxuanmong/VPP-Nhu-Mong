@@ -48,7 +48,9 @@ router.post('/', authenticate, requireAdmin, async (req: AuthRequest, res) => {
 
 router.put('/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => {
   try {
-    const existing = await prisma.pricingRow.findUnique({ where: { id: req.params.id } });
+    const id = String(req.params.id);
+
+    const existing = await prisma.pricingRow.findUnique({ where: { id } });
     if (!existing) {
       res.status(404).json({ error: 'Không tìm thấy dòng giá' });
       return;
@@ -56,7 +58,7 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => 
 
     const { category, format, weight, quantity, price, sortOrder } = req.body;
     const row = await prisma.pricingRow.update({
-      where: { id: req.params.id },
+      where: { id },
       data: {
         ...(category !== undefined && { category }),
         ...(format !== undefined && { format }),
@@ -75,13 +77,15 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => 
 
 router.delete('/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => {
   try {
-    const existing = await prisma.pricingRow.findUnique({ where: { id: req.params.id } });
+    const id = String(req.params.id);
+
+    const existing = await prisma.pricingRow.findUnique({ where: { id } });
     if (!existing) {
       res.status(404).json({ error: 'Không tìm thấy dòng giá' });
       return;
     }
 
-    await prisma.pricingRow.delete({ where: { id: req.params.id } });
+    await prisma.pricingRow.delete({ where: { id } });
     res.json({ message: 'Đã xóa dòng giá' });
   } catch {
     res.status(500).json({ error: 'Lỗi server' });

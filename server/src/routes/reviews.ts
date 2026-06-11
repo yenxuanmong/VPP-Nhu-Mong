@@ -7,11 +7,16 @@ const router = Router();
 router.get('/', async (req, res) => {
   try {
     const { status } = req.query;
-    const where = status ? { status: String(status).toUpperCase() as 'PENDING' | 'APPROVED' | 'REJECTED' } : { status: 'APPROVED' as const };
+    const where = status
+      ? { status: String(status).toUpperCase() as 'PENDING' | 'APPROVED' | 'REJECTED' }
+      : { status: 'APPROVED' as const };
 
     const reviews = await prisma.review.findMany({
       where,
-      include: { product: { select: { id: true, name: true } }, user: { select: { id: true, name: true } } },
+      include: {
+        product: { select: { id: true, name: true } },
+        user: { select: { id: true, name: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -24,7 +29,10 @@ router.get('/', async (req, res) => {
 router.get('/admin', authenticate, requireAdmin, async (_req, res) => {
   try {
     const reviews = await prisma.review.findMany({
-      include: { product: { select: { id: true, name: true } }, user: { select: { id: true, name: true } } },
+      include: {
+        product: { select: { id: true, name: true } },
+        user: { select: { id: true, name: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
     res.json(reviews);
@@ -81,14 +89,16 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
 
 router.patch('/:id/status', authenticate, requireAdmin, async (req: AuthRequest, res) => {
   try {
+    const id = String(req.params.id);
     const { status } = req.body;
+
     if (!['APPROVED', 'REJECTED', 'PENDING'].includes(status)) {
       res.status(400).json({ error: 'Trạng thái không hợp lệ' });
       return;
     }
 
     const review = await prisma.review.update({
-      where: { id: req.params.id },
+      where: { id },
       data: { status },
     });
 
@@ -100,7 +110,8 @@ router.patch('/:id/status', authenticate, requireAdmin, async (req: AuthRequest,
 
 router.delete('/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => {
   try {
-    await prisma.review.delete({ where: { id: req.params.id } });
+    const id = String(req.params.id);
+    await prisma.review.delete({ where: { id } });
     res.json({ message: 'Đã xóa đánh giá' });
   } catch {
     res.status(500).json({ error: 'Lỗi server' });

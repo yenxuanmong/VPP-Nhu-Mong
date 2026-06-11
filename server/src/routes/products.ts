@@ -15,7 +15,8 @@ router.get('/', async (_req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const product = await prisma.product.findUnique({ where: { id: req.params.id } });
+    const id = String(req.params.id);
+    const product = await prisma.product.findUnique({ where: { id } });
     if (!product) {
       res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
       return;
@@ -36,7 +37,15 @@ router.post('/', authenticate, requireAdmin, async (req: AuthRequest, res) => {
     }
 
     const product = await prisma.product.create({
-      data: { name, category, brand, price: Number(price), image, badge: badge || null, salePercent: salePercent ? Number(salePercent) : null },
+      data: {
+        name,
+        category,
+        brand,
+        price: Number(price),
+        image,
+        badge: badge || null,
+        salePercent: salePercent ? Number(salePercent) : null,
+      },
     });
 
     res.status(201).json(product);
@@ -47,16 +56,17 @@ router.post('/', authenticate, requireAdmin, async (req: AuthRequest, res) => {
 
 router.put('/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => {
   try {
+    const id = String(req.params.id);
     const { name, category, brand, price, image, badge, salePercent } = req.body;
 
-    const existing = await prisma.product.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) {
       res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
       return;
     }
 
     const product = await prisma.product.update({
-      where: { id: req.params.id },
+      where: { id },
       data: {
         ...(name !== undefined && { name }),
         ...(category !== undefined && { category }),
@@ -76,13 +86,15 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => 
 
 router.delete('/:id', authenticate, requireAdmin, async (req: AuthRequest, res) => {
   try {
-    const existing = await prisma.product.findUnique({ where: { id: req.params.id } });
+    const id = String(req.params.id);
+
+    const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) {
       res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
       return;
     }
 
-    await prisma.product.delete({ where: { id: req.params.id } });
+    await prisma.product.delete({ where: { id } });
     res.json({ message: 'Đã xóa sản phẩm' });
   } catch {
     res.status(500).json({ error: 'Lỗi server' });
