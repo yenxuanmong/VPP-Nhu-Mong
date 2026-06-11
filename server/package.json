@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "prisma generate && tsc",
-    "start": "prisma migrate deploy && node dist/src/index.js",
+    "build": "npx prisma generate && tsc",
+    "start": "npx prisma migrate deploy && node dist/src/index.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
