@@ -4,7 +4,6 @@ import Reveal from '../components/Reveal';
 import ProductCard from '../components/ProductCard';
 import { api, type DbProduct } from '../lib/api';
 import { categories, filterBrands } from '../data/products';
-import { formatPrice } from '../utils/format';
 
 const ITEMS_PER_PAGE = 9;
 
